@@ -72,6 +72,9 @@ public class PlayerController : Entity
 
     private bool can_move = true;
 
+    [Header("Extra Stuff")]
+    public GameObject sunglasses;
+
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -84,6 +87,8 @@ public class PlayerController : Entity
         StartCoroutine(waitItemSpawn());
 
         key_prompt_anim.gameObject.SetActive(false);
+
+        if(sunglasses!=null) sunglasses.SetActive(false);
     }
 
     public IEnumerator waitItemSpawn()
@@ -191,6 +196,8 @@ public class PlayerController : Entity
             roll_t = roll_cd;
             return;
         }
+
+        if (sunglasses != null && Input.GetKeyDown(KeyCode.O)) sunglasses.SetActive(!sunglasses.activeSelf);
 
         //wasd
         input_dir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
