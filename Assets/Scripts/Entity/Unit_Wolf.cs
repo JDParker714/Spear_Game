@@ -181,11 +181,12 @@ public class Unit_Wolf : Unit
                         wait_t = wait_max_t;
                         Transition_States(state, EntityState.Attack);
                         attack_t = attack_max_t;
-                        is_attacking = false;
                         //do the thing
                         if (target_t.GetComponent<Entity>() != null)
                         {
-                            target_t.GetComponent<Entity>().Take_Damage(1, this);
+                            attack_target_entity = target_t.GetComponent<Entity>();
+                            attack_dir = (target_t.position - transform.position).normalized;
+                            char_anim.SetTrigger("attack");
                         }
                     }
                 }
@@ -200,7 +201,10 @@ public class Unit_Wolf : Unit
                 char_t.localScale = new Vector3(Mathf.Sign(look_dir), 1f, 1f);
                 break;
             case EntityState.Attack:
-                wait_t -= Time.deltaTime;
+                if (!is_attacking)
+                {
+                    wait_t -= Time.deltaTime;
+                }
                 target_move_speed = 0;
                 move_speed = 0;
                 if (wait_t <= 0)

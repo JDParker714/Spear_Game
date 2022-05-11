@@ -68,12 +68,13 @@ public class Unit : Entity
     #endregion
     //stay still
     protected float wait_t;
-    protected float wait_max_t = 0.5f;
+    protected float wait_max_t = 0.25f;
     protected float randomVal;
     //attack variables
     protected bool can_attack;
     protected bool is_attacking = false;
     public float attack_max_t = 5f;
+    public GameObject attack_m_effect;
     protected float attack_t;
 
     protected float look_dir;
@@ -423,6 +424,33 @@ public class Unit : Entity
         }
     }
 
+    public override void Do_Attack()
+    {
+        if (attack_target_entity == null) return;
+
+        attack_dir = (target_t.position - transform.position).normalized;
+        float angle = Mathf.Atan2(attack_dir.y, attack_dir.x) * Mathf.Rad2Deg;
+        Instantiate(attack_m_effect, (Vector2)transform.position, Quaternion.Euler(0, 0, angle + 90));
+
+        Collider2D[] neighbors = Physics2D.OverlapCircleAll((Vector2)transform.position + attack_dir.normalized*1f, 0.5f, entity_mask);
+        List<GameObject> neighbors_obj = new List<GameObject>();
+        neighbors_obj.Add(gameObject);
+        foreach (Collider2D neighbor in neighbors)
+        {
+            if (!neighbors_obj.Contains(neighbor.gameObject))
+            {
+                if (neighbor.GetComponent<Entity>() != null && neighbor.GetComponent<Entity>().entity_team != entity_team)
+                {
+                    neighbor.GetComponent<Entity>().Take_Damage(1, this);
+                }
+                neighbors_obj.Add(neighbor.gameObject);
+            }
+        }
+
+        attack_target_entity = null;
+        is_attacking = false;
+    }
+
     //can stay the same
     protected override void Update()
     {
@@ -490,6 +518,9 @@ public class Unit : Entity
             Gizmos.DrawSphere((Vector2)transform.position + ray.dir, 0.1f);
         }
         Debug.DrawRay(transform.position + new Vector3(0.05f, 0.05f, 0f), move_ray, Color.blue);
+
+        Gizmos.color = Color.cyan;
+        if(attack_target_entity != null) Gizmos.DrawWireSphere(transform.position + (Vector3)attack_dir.normalized * 1f, 0.5f);
     }
 }
 public class AI_Ray

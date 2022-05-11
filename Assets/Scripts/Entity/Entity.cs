@@ -24,6 +24,9 @@ public class Entity : MonoBehaviour
     public string entity_team = "Beasts";
     protected Rigidbody2D rb;
 
+    protected Entity attack_target_entity = null;
+    protected Vector2 attack_dir;
+
     protected virtual void Start()
     {
         health = max_health;
@@ -89,6 +92,12 @@ public class Entity : MonoBehaviour
         Update_Knock();
     }
 
+    public virtual void Do_Attack()
+    {
+        if (attack_target_entity == null) return;
+        attack_target_entity.Take_Damage(1, this);
+        attack_target_entity = null;
+    }
     protected void Update_Knock()
     {
         if (knock_speed > 0)
